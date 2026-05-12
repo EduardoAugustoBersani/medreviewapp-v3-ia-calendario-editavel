@@ -372,44 +372,39 @@ export default function Home() {
   }
 
   async function perguntarIA() {
-    if (!perguntaIA.trim()) return;
+  if (!perguntaIA.trim()) return;
 
-    setCarregandoIA(true);
-    setRespostaIA("");
+  setCarregandoIA(true);
+  setRespostaIA("");
 
-    try {
-      const response = await fetch("/api/ia", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          pergunta: perguntaIA,
-          contexto: {
-            materias,
-            assuntos,
-            revisoes,
-            erros,
-            provas,
-            provaAreas,
-            desempenhoTotal,
-            desempenhoPorArea,
-            areasFracas,
-          },
-        }),
-      });
+  try {
+    const response = await fetch("/api/ia", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: perguntaIA,
+      }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        setRespostaIA(data.error || "Não foi possível consultar a IA agora.");
-      } else {
-        setRespostaIA(data.resposta || "A IA não retornou uma resposta.");
-      }
-    } catch (error) {
-      setRespostaIA("Erro ao conectar com a IA. Verifique a configuração da OPENAI_API_KEY na Vercel.");
-    } finally {
-      setCarregandoIA(false);
+    if (!response.ok) {
+      setRespostaIA(data.error || "Não foi possível consultar a IA agora.");
+      return;
     }
+
+    setRespostaIA(data.response || "A IA não retornou uma resposta.");
+  } catch (error: any) {
+    setRespostaIA(
+      error?.message ||
+        "Erro ao conectar com a IA. Verifique a configuração da GEMINI_API_KEY na Vercel."
+    );
+  } finally {
+    setCarregandoIA(false);
   }
+}
 
   async function criarErro() {
     if (!novoErro.trim() || !userId) return;
